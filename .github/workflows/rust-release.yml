@@ -178,21 +178,21 @@ jobs:
           version="${GITHUB_REF_NAME#rust-v}"
           echo "name=${version}" >> $GITHUB_OUTPUT
 
-      - name: Stage npm package
-        env:
-          GH_TOKEN: ${{ github.token }}
-        run: |
-          set -euo pipefail
-          TMP_DIR="${RUNNER_TEMP}/npm-stage"
-          python3 codex-cli/scripts/stage_rust_release.py \
-            --release-version "${{ steps.release_name.outputs.name }}" \
-            --tmp "${TMP_DIR}"
-          mkdir -p dist/npm
-          # Produce an npm-ready tarball using `npm pack` and store it in dist/npm.
-          # We then rename it to a stable name used by our publishing script.
-          (cd "$TMP_DIR" && npm pack --pack-destination "${GITHUB_WORKSPACE}/dist/npm")
-          mv "${GITHUB_WORKSPACE}"/dist/npm/*.tgz \
-             "${GITHUB_WORKSPACE}/dist/npm/codex-npm-${{ steps.release_name.outputs.name }}.tgz"
+      # - name: Stage npm package
+      #   env:
+      #     GH_TOKEN: ${{ github.token }}
+      #   run: |
+      #     set -euo pipefail
+      #     TMP_DIR="${RUNNER_TEMP}/npm-stage"
+      #     python3 codex-cli/scripts/stage_rust_release.py \
+      #       --release-version "${{ steps.release_name.outputs.name }}" \
+      #       --tmp "${TMP_DIR}"
+      #     mkdir -p dist/npm
+      #     # Produce an npm-ready tarball using `npm pack` and store it in dist/npm.
+      #     # We then rename it to a stable name used by our publishing script.
+      #     (cd "$TMP_DIR" && npm pack --pack-destination "${GITHUB_WORKSPACE}/dist/npm")
+      #     mv "${GITHUB_WORKSPACE}"/dist/npm/*.tgz \
+      #        "${GITHUB_WORKSPACE}/dist/npm/codex-npm-${{ steps.release_name.outputs.name }}.tgz"
 
       - name: Create GitHub Release
         uses: softprops/action-gh-release@v2
@@ -204,9 +204,9 @@ jobs:
           # (e.g. -alpha, -beta). Otherwise publish a normal release.
           prerelease: ${{ contains(steps.release_name.outputs.name, '-') }}
 
-      - uses: facebook/dotslash-publish-release@v2
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        with:
-          tag: ${{ github.ref_name }}
-          config: .github/dotslash-config.json
+      # - uses: facebook/dotslash-publish-release@v2
+      #   env:
+      #     GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      #   with:
+      #     tag: ${{ github.ref_name }}
+      #     config: .github/dotslash-config.json
